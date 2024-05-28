@@ -12,6 +12,10 @@ const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const CALLBACK_URL = process.env.CALLBACK_URL;
 
+// Log the environment variables
+console.log(`CLIENT_ID: ${CLIENT_ID}`);
+console.log(`CALLBACK_URL: ${CALLBACK_URL}`);
+
 app.get('/auth', (req, res) => {
     const authUrl = `https://oauth.pipedrive.com/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${CALLBACK_URL}`;
     res.redirect(authUrl);
@@ -32,7 +36,7 @@ app.get('/api/auth/callback', async (req, res) => {
         // Store the access_token in your database or session
         res.json({ access_token });
     } catch (error) {
-        console.error('Error during OAuth callback', error);
+        console.error('Error during OAuth callback', error.response ? error.response.data : error.message);
         res.status(500).send('Authentication failed');
     }
 });
@@ -47,12 +51,10 @@ app.post('/api/deals', async (req, res) => {
         });
         res.json(response.data);
     } catch (error) {
-        console.error('Error creating deal', error);
+        console.error('Error creating deal', error.response ? error.response.data : error.message);
         res.status(500).send('Failed to create deal');
     }
 });
-
-
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
